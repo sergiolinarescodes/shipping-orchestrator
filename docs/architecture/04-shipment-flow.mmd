@@ -1,0 +1,45 @@
+sequenceDiagram
+    autonumber
+    participant Shop as Shopify
+    participant Pub as PublicApi
+    participant DB as orchestrator schema
+    participant Bus as Wolverine bus
+    participant Wrk as Worker
+    participant Route as RoutingEngine
+    participant Pnl as PostNL InMemory
+    participant Proj as ProjectionHandlers
+    participant Read as ops_read + customer_read
+
+    rect rgb(255,230,230)
+    Shop--xPub: order.created webhook<br/>NOT IMPLEMENTED
+    end
+
+    Pub->>Pub: POST /v1/shipments/batches<br/>(manual or future webhook)
+    Pub->>DB: CreateShipmentBatch + Shipments<br/>(idempotency check)
+    Pub->>Bus: ShipmentBatchAccepted, ShipmentCreated*N
+    Pub-->>Pub: 202 + cascading ProcessShipmentBatchCommand
+    Bus->>Proj: events
+    Proj->>Read: insert batch+shipments rows
+
+    Bus->>Wrk: ProcessShipmentBatchCommand
+    Wrk->>DB: batch.StartProcessing
+    Wrk->>Bus: RequestCarrierLabel * N
+
+    loop per shipment
+        Bus->>Wrk: RequestCarrierLabelCommand
+        Wrk->>Route: SelectCarrier(shipment, assignments)
+        Route-->>Wrk: CarrierCode + scoring trail
+        Wrk->>Pnl: CreateLabelAsync
+        Pnl-->>Wrk: tracking + labelUri (or failure)
+        Wrk->>DB: Shipment.RecordLabel / Fail<br/>Batch.RecordItem*
+        Wrk->>Bus: ShipmentCarrierSelected, ShipmentLabeled/Failed
+        Wrk->>DB: fresh scope -> RecheckCompletion
+    end
+
+    Wrk->>Bus: ShipmentBatchCompleted (last writer wins)
+    Bus->>Proj: events
+    Proj->>Read: status, KPI bumps
+
+    rect rgb(255,230,230)
+    Wrk--xShop: PushFulfillmentAsync<br/>STUB - only logs
+    end

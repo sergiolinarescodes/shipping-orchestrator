@@ -1,0 +1,107 @@
+flowchart TD
+    %% =========================================================
+    %% LAYER: External (shopper + ecommerce platforms)
+    %% =========================================================
+    subgraph EXT["External — Shopper & Ecommerce platforms"]
+        U([Shopper clicks Buy])
+        SHOP[Shopify store<br/>Admin API · order.created webhook]
+        WOO[WooCommerce store<br/>REST API · order.created webhook]
+        U --> SHOP
+        U --> WOO
+    end
+
+    %% =========================================================
+    %% LAYER: PublicApi (ASP.NET Core minimal API host)
+    %% =========================================================
+    subgraph PAPI["PublicApi  ·  ASP.NET Core minimal API"]
+        WHS["POST /v1/webhooks/shopify<br/>WebhookEndpoints.cs<br/>HMAC-SHA256 vs ClientSecret · fixed-time compare"]
+        WHW["POST /v1/webhooks/woocommerce<br/>WebhookEndpoints.cs<br/>AES-decrypt CredentialsCipher → HMAC verify"]
+        RL["Per-tenant token-bucket rate limit<br/>System.Threading.RateLimiting<br/>partition: connector × tenantId"]
+        TR["Translator<br/>Shopify / Woo · System.Text.Json<br/>→ EcommerceOrderPayload"]
+        ACK[["202 Accepted<br/>+ pendingOrderId"]]
+        DASH["GET /v1/dashboard/* · queries customer_read<br/>POST /v1/dashboard/orders/bundle"]
+        SR["SignalR Hub · RealtimeHub.cs<br/>fan-out invalidations to SPA"]
+    end
+
+    %% =========================================================
+    %% LAYER: Messaging (Wolverine + Postgres outbox + SQS)
+    %% =========================================================
+    subgraph MSG["Messaging  ·  Wolverine · Postgres outbox (messaging schema) · SQS (LocalStack/AWS)"]
+        DISP["IngestionDispatcher<br/>unique idx (tenant,platform,extOrderId)<br/>publish IngestEcommerceOrderCommand"]
+        Q1{{SQS · Ingest queue}}
+        Q2{{SQS · Process / Label / Track queues}}
+        Q3{{SQS · BroadcastDashboardEvent queue}}
+    end
+
+    %% =========================================================
+    %% LAYER: Worker (Application + Domain handlers, projections)
+    %% =========================================================
+    subgraph WRK["Worker host  ·  Wolverine handlers · EF Core · Postgres"]
+        H_ING["IngestEcommerceOrderHandler<br/>persists PendingEcommerceOrder<br/>(orchestrator schema · idempotent)"]
+        H_BUN["BundlePendingOrdersHandler<br/>→ CreateShipmentBatchCommand"]
+        H_BATCH["CreateShipmentBatchHandler<br/>Domain: ShipmentBatch + Shipment aggregates<br/>events: ShipmentBatchAccepted"]
+        H_PROC["ProcessShipmentBatchHandler<br/>→ RequestCarrierLabelCommand per shipment"]
+        H_LBL["RequestCarrierLabelHandler<br/>RoutingEngine.SelectCarrierAsync<br/>→ ICarrierConnector.CreateLabelAsync"]
+        CONN["CarrierConnectors.PostNL<br/>(in-memory stub today)"]
+        H_TRK["Tracking ingress (carrier webhook/poll)<br/>→ ShipmentTrackingUpdated event"]
+        PROJ["Projection handlers<br/>ProjectionHandlers.cs · ShipmentTrackingProjectionHandler.cs<br/>writes ops_read + customer_read schemas"]
+        BROAD["WolverineDashboardBroadcaster<br/>publish BroadcastDashboardEvent"]
+    end
+
+    %% =========================================================
+    %% LAYER: Frontend (Customer SPA)
+    %% =========================================================
+    subgraph FE["Customer SPA  ·  Vite + React 18 + TS · TanStack Query · @microsoft/signalr"]
+        UI_PEND[Pending orders list]
+        UI_BUNDLE[Bundle action]
+        UI_TRACK[Live tracking timeline]
+        RT["useRealtimeInvalidations()<br/>SignalR client · invalidate query keys"]
+    end
+
+    %% Shopify path
+    SHOP -->|HTTPS POST + X-Shopify-Hmac-Sha256| WHS
+    WHS --> RL
+    %% Woo path
+    WOO  -->|HTTPS POST + X-WC-Webhook-Signature| WHW
+    WHW --> RL
+
+    RL --> TR --> DISP
+    DISP --> Q1
+    DISP -.->|fire-and-forget| ACK
+    ACK -.->|HTTP response| SHOP
+    ACK -.->|HTTP response| WOO
+
+    Q1 --> H_ING
+    H_ING --> PROJ
+
+    %% User-initiated bundling
+    UI_PEND -->|GET /v1/dashboard/orders/pending| DASH
+    DASH --> UI_PEND
+    UI_BUNDLE -->|POST /v1/dashboard/orders/bundle| DASH
+    DASH --> H_BUN
+    H_BUN --> H_BATCH --> Q2 --> H_PROC --> Q2 --> H_LBL --> CONN
+    CONN -->|label URL · tracking#| H_LBL
+    H_LBL --> PROJ
+
+    %% Carrier tracking loop
+    CONN -. async tracking events .-> H_TRK --> PROJ
+
+    %% Realtime fan-out
+    PROJ --> BROAD --> Q3 --> SR --> RT
+    RT --> UI_PEND
+    RT --> UI_TRACK
+
+    %% Final read
+    UI_TRACK -->|GET /v1/dashboard/shipments| DASH
+
+    %% Layer styling
+    classDef ext fill:#fef3c7,stroke:#b45309,color:#1f2937;
+    classDef papi fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
+    classDef msg fill:#ede9fe,stroke:#6d28d9,color:#0f172a;
+    classDef wrk fill:#dcfce7,stroke:#15803d,color:#0f172a;
+    classDef fe fill:#ffe4e6,stroke:#be123c,color:#0f172a;
+    class U,SHOP,WOO ext;
+    class WHS,WHW,RL,TR,ACK,DASH,SR papi;
+    class DISP,Q1,Q2,Q3 msg;
+    class H_ING,H_BUN,H_BATCH,H_PROC,H_LBL,CONN,H_TRK,PROJ,BROAD wrk;
+    class UI_PEND,UI_BUNDLE,UI_TRACK,RT fe;

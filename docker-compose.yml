@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: shipping-orchestrator-postgres
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app_dev_password
+      POSTGRES_DB: shipping_orchestrator
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/db-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d shipping_orchestrator"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - shipping-orchestrator
+
+  localstack:
+    image: localstack/localstack:3
+    container_name: shipping-orchestrator-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: sqs,sns,s3,secretsmanager,kms
+      DEFAULT_REGION: eu-west-1
+      DEBUG: 0
+    volumes:
+      - localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD-SHELL", "awslocal sqs list-queues >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - shipping-orchestrator
+
+  jaeger:
+    # Jaeger v2 (single binary). v1 (jaegertracing/all-in-one) reached EOL on 2025-12-31.
+    # v2 enables OTLP gRPC (4317) + HTTP (4318) by default; UI on 16686 is unchanged.
+    image: jaegertracing/jaeger:2.0.0
+    container_name: shipping-orchestrator-jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - shipping-orchestrator
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: shipping-orchestrator-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - shipping-orchestrator
+
+  redis:
+    image: redis:7-alpine
+    container_name: shipping-orchestrator-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - shipping-orchestrator
+
+volumes:
+  postgres-data:
+  localstack-data:
+
+networks:
+  shipping-orchestrator:
+    driver: bridge

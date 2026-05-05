@@ -1,0 +1,22 @@
+{
+  "name": "shipping-orchestrator-web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Ship GDS dashboards (Customer + Internal) and shared @ship/ui design system.",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter \"./apps/*\" dev",
+    "dev:customer": "pnpm --filter @ship/dashboard-customer dev",
+    "dev:internal": "pnpm --filter @ship/dashboard-internal dev",
+    "build": "pnpm -r --filter \"./apps/*\" build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r --filter \"./apps/*\" test",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=20.10.0"
+  }
+}

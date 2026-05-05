@@ -1,0 +1,46 @@
+root = true
+
+[*]
+indent_style = space
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{cs,csx}]
+indent_size = 4
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:silent
+csharp_new_line_before_open_brace = all
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+
+# Private static readonly fields follow the same _camelCase prefix as private instance fields
+# in this codebase (e.g. _httpClient, _options). Override the default PascalCase rule.
+dotnet_naming_rule.private_static_readonly_fields_underscore.severity = suggestion
+dotnet_naming_rule.private_static_readonly_fields_underscore.symbols = private_static_readonly_fields
+dotnet_naming_rule.private_static_readonly_fields_underscore.style = underscore_camel_case
+dotnet_naming_symbols.private_static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_readonly_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_readonly_fields.required_modifiers = static, readonly
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+
+# CA rules tuned per Directory.Build.props NoWarn
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.{props,targets,csproj,slnx}]
+indent_size = 2
+
+[Dockerfile*]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

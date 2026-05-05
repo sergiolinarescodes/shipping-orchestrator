@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Restore packages
+        run: dotnet restore ShippingOrchestrator.slnx
+
+      - name: Build
+        run: dotnet build ShippingOrchestrator.slnx --configuration Release --no-restore
+
+      - name: Unit + Architecture tests
+        run: |
+          dotnet test tests/ShippingOrchestrator.Domain.UnitTests --configuration Release --no-build --logger "trx;LogFileName=domain.trx"
+          dotnet test tests/ShippingOrchestrator.Application.UnitTests --configuration Release --no-build --logger "trx;LogFileName=application.trx"
+          dotnet test tests/ShippingOrchestrator.CarrierConnectors.PostNL.Tests --configuration Release --no-build --logger "trx;LogFileName=postnl.trx"
+          dotnet test tests/ShippingOrchestrator.Architecture.Tests --configuration Release --no-build --logger "trx;LogFileName=architecture.trx"
+
+      - name: Integration + E2E tests
+        run: |
+          dotnet test tests/ShippingOrchestrator.Infrastructure.IntegrationTests --configuration Release --no-build --logger "trx;LogFileName=integration.trx"
+          dotnet test tests/ShippingOrchestrator.E2E.Tests --configuration Release --no-build --logger "trx;LogFileName=e2e.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"

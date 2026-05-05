@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.Architecture.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Domain\ShippingOrchestrator.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Application\ShippingOrchestrator.Application.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Infrastructure\ShippingOrchestrator.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Modules.Abstractions\ShippingOrchestrator.Modules.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.ReadModels\ShippingOrchestrator.ReadModels.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.PublicApi\ShippingOrchestrator.PublicApi.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.PrivateApi\ShippingOrchestrator.PrivateApi.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Worker\ShippingOrchestrator.Worker.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.EcommerceConnectors.Shopify\ShippingOrchestrator.EcommerceConnectors.Shopify.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.CarrierConnectors.PostNL\ShippingOrchestrator.CarrierConnectors.PostNL.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+</Project>

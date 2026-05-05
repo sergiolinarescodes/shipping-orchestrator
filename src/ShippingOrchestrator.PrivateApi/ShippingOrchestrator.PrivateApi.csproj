@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.PrivateApi</RootNamespace>
+    <UserSecretsId>shipping-orchestrator-private-api</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ShippingOrchestrator.Application\ShippingOrchestrator.Application.csproj" />
+    <ProjectReference Include="..\ShippingOrchestrator.Infrastructure\ShippingOrchestrator.Infrastructure.csproj" />
+    <ProjectReference Include="..\ShippingOrchestrator.Modules.Abstractions\ShippingOrchestrator.Modules.Abstractions.csproj" />
+    <ProjectReference Include="..\ShippingOrchestrator.ReadModels\ShippingOrchestrator.ReadModels.csproj" />
+    <ProjectReference Include="..\ShippingOrchestrator.EcommerceConnectors.Shopify\ShippingOrchestrator.EcommerceConnectors.Shopify.csproj" />
+    <ProjectReference Include="..\ShippingOrchestrator.EcommerceConnectors.WooCommerce\ShippingOrchestrator.EcommerceConnectors.WooCommerce.csproj" />
+    <ProjectReference Include="..\ShippingOrchestrator.CarrierConnectors.PostNL\ShippingOrchestrator.CarrierConnectors.PostNL.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="WolverineFx" />
+    <PackageReference Include="WolverineFx.Http" />
+  </ItemGroup>
+</Project>

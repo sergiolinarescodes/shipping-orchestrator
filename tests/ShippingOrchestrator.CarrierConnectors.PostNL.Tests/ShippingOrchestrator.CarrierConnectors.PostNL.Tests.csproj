@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.CarrierConnectors.PostNL.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.CarrierConnectors.PostNL\ShippingOrchestrator.CarrierConnectors.PostNL.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Domain\ShippingOrchestrator.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Modules.Abstractions\ShippingOrchestrator.Modules.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,36 @@
+flowchart TD
+    DOM[Domain<br/>aggregates + events]
+    APP[Application<br/>handlers + repo interfaces]
+    INFRA[Infrastructure<br/>EF + Wolverine + crypto]
+    RM[ReadModels<br/>Customer / Operations / Projections]
+    MOD[Modules.Abstractions]
+    SHOPC[EcommerceConnectors.Shopify]
+    PNLC[CarrierConnectors.PostNL]
+    PUB[PublicApi]
+    PRIV[PrivateApi]
+    WRK[Worker]
+
+    APP --> DOM
+    INFRA --> APP
+    INFRA --> DOM
+    RM --> DOM
+    SHOPC --> DOM
+    SHOPC --> MOD
+    PNLC --> DOM
+    PNLC --> MOD
+    MOD --> DOM
+    PUB --> APP
+    PUB --> INFRA
+    PUB --> RM
+    PUB --> SHOPC
+    PUB --> PNLC
+    PRIV --> APP
+    PRIV --> INFRA
+    PRIV --> RM
+    PRIV --> SHOPC
+    PRIV --> PNLC
+    WRK --> APP
+    WRK --> INFRA
+    WRK --> RM
+    WRK --> SHOPC
+    WRK --> PNLC

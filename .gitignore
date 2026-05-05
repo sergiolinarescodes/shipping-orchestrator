@@ -1,0 +1,61 @@
+# Build output
+bin/
+obj/
+out/
+publish/
+artifacts/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+
+# Test output
+TestResults/
+*.coverage
+*.coveragexml
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local secrets / dotnet user-secrets
+appsettings.*.local.json
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-compose.override.yml
+
+# EF designer
+*.dbml
+*.dbml.layout
+
+# Rider
+.idea/
+*.iml
+
+# Frontend (web/ pnpm workspace)
+web/**/node_modules/
+web/**/dist/
+web/**/.env.local
+web/**/.turbo/
+web/**/.cache/
+
+# Showcase Shopify app (Remix scaffold + CLI artifacts)
+shopify-app/node_modules/
+shopify-app/build/
+shopify-app/.cache/
+shopify-app/.shopify/
+shopify-app/.env
+
+# Claude Code per-developer config (skills are shared, local permissions aren't)
+.claude/settings.local.json

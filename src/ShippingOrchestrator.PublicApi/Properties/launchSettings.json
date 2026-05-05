@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "PublicApi": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5101",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Showcase": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:5111;http://localhost:5101",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Connectors__Shopify__Mode": "Real",
+        "Connectors__WooCommerce__Mode": "Real",
+        "Connectors__WooCommerce__CallbackBaseUrl": "https://host.docker.internal:5111",
+        "Connectors__WooCommerce__OrchestratorWebhookUrl": "http://host.docker.internal:5101/v1/webhooks/woocommerce",
+        "Connectors__WooCommerce__ReturnUrl": "http://localhost:5173/connections?wc=connected"
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "8e9ab5bc98f402c086ff97c727322685"
+name = "shipping-orchestrator-showcase"
+application_url = "https://example.com"
+embedded = true
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/orders/create"
+  topics = [ "orders/create" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/orders/updated"
+  topics = [ "orders/updated" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/orders/paid"
+  topics = [ "orders/paid" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/fulfillments/create"
+  topics = [ "fulfillments/create" ]
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_orders,write_fulfillments"
+
+[access.admin]
+direct_api_mode = "online"
+embedded_app_direct_api_access = false
+
+# Declares why this app needs the customer fields in orders/* and fulfillments/* webhooks.
+# Auto-approved on development stores; required even there since CLI 3.80+.
+[[access.admin.protected_customer_data_attributes]]
+data_fields = [
+  "customer_name",
+  "customer_email_address",
+  "customer_phone_number",
+  "customer_address"
+]
+reason = "Generate shipping labels and tracking notifications via the orchestrator."
+retention_period = 365
+
+[auth]
+redirect_urls = [
+  "https://example.com/api/auth",
+  "https://example.com/auth/callback",
+  "https://example.com/auth/orchestrator-forward",
+  "http://localhost:5101/v1/connections/dashboard-callback/shopify",
+  "https://localhost:5111/v1/connections/dashboard-callback/shopify"
+]
+
+[build]
+automatically_update_urls_on_dev = false

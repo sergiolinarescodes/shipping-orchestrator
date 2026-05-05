@@ -1,0 +1,37 @@
+flowchart LR
+    subgraph WRITE[Write side - orchestrator schema]
+        AGG[Aggregates raise events]
+    end
+    subgraph BUS[Wolverine]
+        E1[ShipmentBatchAccepted]
+        E2[ShipmentCreated]
+        E3[ShipmentCarrierSelected]
+        E4[ShipmentLabeled]
+        E5[ShipmentFailed]
+        E6[ShipmentBatchCompleted]
+        E7[TenantCreated/StatusChanged]
+    end
+    subgraph PROJ[ProjectionHandlers - Worker only]
+        PH[static handler methods]
+    end
+    subgraph OPS[ops_read schema]
+        OB[OpsBatchEntity]
+        OS[OpsShipmentEntity]
+        OK[OpsCarrierDailyKpi]
+        OT[OpsTenantEntity]
+    end
+    subgraph CUST[customer_read schema]
+        CB[CustomerBatchEntity]
+        CS[CustomerShipmentEntity]
+    end
+    subgraph QUERIES[Query interfaces]
+        OQ[IOperationsReadQueries<br/>queues, exceptions, KPIs<br/>->PrivateApi /ops/*]
+        CQ[ICustomerReadQueries<br/>shipments, batch detail<br/>->PublicApi /v1/dashboard/*]
+    end
+
+    AGG --> E1 & E2 & E3 & E4 & E5 & E6 & E7
+    E1 & E2 & E3 & E4 & E5 & E6 & E7 --> PH
+    PH --> OB & OS & OK & OT
+    PH --> CB & CS
+    OB & OS & OK & OT --> OQ
+    CB & CS --> CQ

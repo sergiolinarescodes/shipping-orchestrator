@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.Infrastructure.IntegrationTests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Infrastructure\ShippingOrchestrator.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Domain\ShippingOrchestrator.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Application\ShippingOrchestrator.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Respawn" />
+  </ItemGroup>
+</Project>

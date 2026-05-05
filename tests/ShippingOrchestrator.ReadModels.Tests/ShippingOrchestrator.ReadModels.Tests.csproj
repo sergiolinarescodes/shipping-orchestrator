@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.ReadModels.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.ReadModels\ShippingOrchestrator.ReadModels.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Domain\ShippingOrchestrator.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+</Project>

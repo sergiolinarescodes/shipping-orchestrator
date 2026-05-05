@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1.7
+ARG SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0-alpine
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/runtime:10.0-alpine
+
+FROM ${SDK_IMAGE} AS build
+WORKDIR /src
+COPY ["global.json", "Directory.Build.props", "Directory.Packages.props", "./"]
+COPY ["src/", "src/"]
+RUN dotnet restore "src/ShippingOrchestrator.Worker/ShippingOrchestrator.Worker.csproj"
+RUN dotnet publish "src/ShippingOrchestrator.Worker/ShippingOrchestrator.Worker.csproj" \
+    -c Release -o /app/publish --no-restore
+
+FROM ${RUNTIME_IMAGE} AS runtime
+WORKDIR /app
+COPY --from=build /app/publish ./
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+USER 1001
+ENTRYPOINT ["dotnet", "ShippingOrchestrator.Worker.dll"]

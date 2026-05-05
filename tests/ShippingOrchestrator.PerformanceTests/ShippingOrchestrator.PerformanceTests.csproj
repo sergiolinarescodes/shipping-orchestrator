@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.PerformanceTests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Application\ShippingOrchestrator.Application.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Domain\ShippingOrchestrator.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Infrastructure\ShippingOrchestrator.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.PublicApi\ShippingOrchestrator.PublicApi.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.ReadModels\ShippingOrchestrator.ReadModels.csproj"/>
+    <!-- Worker is intentionally out of project refs: its Program class would collide with
+         PublicApi's. Scenarios that need Worker drive it via dotnet run + scripts/run-perf.ps1
+         rather than booting it in-process. -->
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Testcontainers.LocalStack" />
+    <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+</Project>

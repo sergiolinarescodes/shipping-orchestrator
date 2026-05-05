@@ -1,0 +1,19 @@
+flowchart TB
+    subgraph DONE[Implemented]
+        A1[BuildInstallUrlAsync<br/>builds /admin/oauth/authorize URL]
+        A2[CompleteOAuthAsync<br/>POST /admin/oauth/access_token<br/>parse access_token]
+        A3[Encrypt token via IEnvelopeEncryptor<br/>store EcommerceConnection]
+        A4[POST /v1/connections/shopify/install<br/>POST /v1/connections/shopify/callback]
+    end
+    subgraph TODO[Missing - real Shopify app]
+        B1[Inbound webhook endpoint<br/>POST /webhooks/shopify/orders]
+        B2[HMAC signature validation<br/>X-Shopify-Hmac-Sha256]
+        B3[Webhook subscription registration<br/>at install time]
+        B4[Order payload to CreateShipmentBatchCommand<br/>mapping + idempotency key]
+        B5[Outbound REST client<br/>POST /admin/api/.../fulfillments.json]
+        B6[Saga listening to ShipmentLabeled<br/>-> PushFulfillmentAsync]
+        B7[App manifest, scopes, app listing<br/>Shopify Partner dashboard]
+        B8[GDPR mandatory webhooks<br/>customers/data_request, customers/redact, shop/redact]
+    end
+    A4 --> A1 --> A2 --> A3
+    A3 -.token ready, but nothing uses it.-> B5

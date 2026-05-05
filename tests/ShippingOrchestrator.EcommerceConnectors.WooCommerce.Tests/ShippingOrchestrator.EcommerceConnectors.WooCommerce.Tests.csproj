@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.EcommerceConnectors.WooCommerce.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.EcommerceConnectors.WooCommerce\ShippingOrchestrator.EcommerceConnectors.WooCommerce.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Domain\ShippingOrchestrator.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Modules.Abstractions\ShippingOrchestrator.Modules.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WireMock.Net" />
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,39 @@
+flowchart LR
+    subgraph EXT[External]
+        SHOP[Shopify store]
+        CARR[PostNL]
+    end
+
+    subgraph FE[Frontend - web/]
+        CUST_UI[Customer SPA :5173]
+        INT_UI[Internal SPA :5174]
+    end
+
+    subgraph HOSTS[.NET 10 hosts - shared core]
+        PUB[PublicApi :5101<br/>Tenant auth]
+        PRIV[PrivateApi :5102<br/>Staff auth]
+        WRK[Worker<br/>Wolverine handlers + projections]
+    end
+
+    subgraph DB[Postgres]
+        S_ORCH[(orchestrator<br/>write side)]
+        S_OPS[(ops_read)]
+        S_CUST[(customer_read)]
+        S_MSG[(messaging<br/>outbox/inbox)]
+    end
+
+    SHOP -.webhook NOT WIRED.-> PUB
+    CUST_UI -->|X-Tenant-Id| PUB
+    INT_UI -->|X-Staff-Role| PRIV
+    PUB --> S_ORCH
+    PUB --> S_CUST
+    PRIV --> S_ORCH
+    PRIV --> S_OPS
+    WRK --> S_ORCH
+    WRK --> S_OPS
+    WRK --> S_CUST
+    PUB <-->|bus| S_MSG
+    PRIV <-->|bus| S_MSG
+    WRK <-->|bus| S_MSG
+    WRK -->|CreateLabel| CARR
+    WRK -.PushFulfillment NOT WIRED.-> SHOP

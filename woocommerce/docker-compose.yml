@@ -1,0 +1,130 @@
+# Local WordPress + WooCommerce stack for the orchestrator showcase. Runs alongside the
+# orchestrator's main `docker compose up` (separate compose project; ports don't overlap).
+# WP reaches the orchestrator on http://host.docker.internal:5101 — no tunnel needed.
+#
+# Quickstart:
+#   cd woocommerce
+#   docker compose up -d
+#   open http://localhost:8080/wp-admin   (admin / admin)
+#
+# Then in the customer SPA -> Connections -> "Connect WooCommerce" -> enter
+# http://localhost:8080 -> approve in wp-admin.
+
+name: shipping-orchestrator-wc
+
+services:
+  wc-db:
+    image: mariadb:11
+    container_name: shipping-orchestrator-wc-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: wordpress_root
+    volumes:
+      - wc_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  wc-wordpress:
+    image: wordpress:latest
+    container_name: shipping-orchestrator-wc-wp
+    restart: unless-stopped
+    depends_on:
+      wc-db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: wc-db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: "1"
+      # WP_HOME / WP_SITEURL pinned so wp-cli + the auth-endpoint return-url work consistently.
+      # SHIPPING_DEV_LOCAL is the gate every dev-only mu-plugin checks before activating —
+      # without it the mu-plugins fall through as no-ops, so even if the folder is ever
+      # accidentally copied alongside a real WP install nothing happens (no SSL bypass,
+      # no extra safe-port allow-list, no debug-log spoofing).
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://localhost:8080');
+        define('WP_SITEURL', 'http://localhost:8080');
+        define('WP_ENVIRONMENT_TYPE', 'local');
+        define('SHIPPING_DEV_LOCAL', true);
+    volumes:
+      - wc_wp_data:/var/www/html
+      # Mount our dev-only mu-plugins so WP picks up `disable-ssl-verify-host-docker.php`
+      # at boot — needed because WC's /wc-auth/v1/authorize refuses non-HTTPS callbacks
+      # and the orchestrator's dev cert isn't trusted inside this container.
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  wc-cli:
+    # One-shot: waits for WP, runs the seed script, then exits. Re-runs are idempotent
+    # (wp core install + wp plugin install both no-op when already installed).
+    image: wordpress:cli
+    container_name: shipping-orchestrator-wc-cli
+    depends_on:
+      wc-wordpress:
+        condition: service_started
+      wc-db:
+        condition: service_healthy
+    user: "33:33"
+    volumes:
+      - wc_wp_data:/var/www/html
+      - ./wp-init.sh:/usr/local/bin/wp-init.sh:ro
+    entrypoint: ["bash", "/usr/local/bin/wp-init.sh"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  wc-as-runner:
+    # Long-running sidecar that drains WC's Action Scheduler queue every 15 seconds.
+    # WC delegates webhook delivery to AS; out of the box AS only fires when WP-cron or
+    # the loopback admin-ajax runner ticks, both of which can stall in this stack and
+    # leave webhook deliveries pending for minutes (or forever if nonces expire). This
+    # sidecar guarantees a real merchant-style "fire-and-forget" experience: edit/place
+    # an order in wp-admin → orchestrator sees it inside ~15s, no manual `wp action-scheduler`.
+    #
+    # Mounts the same mu-plugins bind that wc-wordpress does, AND injects
+    # SHIPPING_DEV_LOCAL via wp-cli's --exec global flag — without that, the mu-plugin's
+    # `http_allowed_safe_ports` filter (which whitelists 5101/5111) wouldn't activate
+    # in this PHP process and `wp_safe_remote_request` would silently fail on those
+    # ports, exactly the failure mode that took us a session to track down.
+    image: wordpress:cli
+    container_name: shipping-orchestrator-wc-as-runner
+    restart: unless-stopped
+    depends_on:
+      wc-wordpress:
+        condition: service_started
+      wc-db:
+        condition: service_healthy
+    user: "33:33"
+    volumes:
+      - wc_wp_data:/var/www/html
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+    environment:
+      WORDPRESS_DB_HOST: wc-db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        echo "[wc-as-runner] waiting for WP install..."
+        while ! wp --path=/var/www/html --exec='define("SHIPPING_DEV_LOCAL",true);' core is-installed 2>/dev/null; do sleep 2; done
+        echo "[wc-as-runner] draining AS every 15s"
+        while true; do
+          wp --path=/var/www/html --exec='define("SHIPPING_DEV_LOCAL",true);' action-scheduler run --batch-size=20 2>&1 | grep -E "webhook|error" || true
+          sleep 15
+        done
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  wc_db_data:
+  wc_wp_data:

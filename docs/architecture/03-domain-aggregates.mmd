@@ -1,0 +1,45 @@
+classDiagram
+    class Tenant {
+        TenantId Id
+        Status: Onboarding|Active|Suspended
+        +Create() TenantCreated
+        +Activate() TenantStatusChanged
+    }
+    class EcommerceConnection {
+        Guid Id
+        TenantId
+        PlatformCode "shopify"
+        ExternalAccountId
+        byte[] CredentialsCipher (AES)
+        +Install() EcommerceConnectionInstalled
+        +Rotate() EcommerceConnectionCredentialsRotated
+    }
+    class CarrierAssignment {
+        TenantId
+        CarrierCode "postnl"
+        Priority
+        OriginCountries[]
+        DestinationCountries[]
+    }
+    class ShipmentBatch {
+        Guid Id, TenantId
+        IdempotencyKey?
+        Status: Pending->Processing->Completed/Failed/Partial
+        Items[]
+        +Accept() ShipmentBatchAccepted
+        +StartProcessing() Started
+        +RecheckCompletion() Completed
+    }
+    class Shipment {
+        Guid Id, TenantId, BatchId?
+        Status: Created->CarrierSelected->LabelRequested->Labeled/Failed
+        From,To,Parcel
+        CarrierCode?,TrackingNumber?,LabelUri?
+        +Create() ShipmentCreated
+        +SelectCarrier() CarrierSelected
+        +RecordLabel() Labeled
+        +Fail() Failed
+    }
+    Tenant "1" --> "*" EcommerceConnection
+    Tenant "1" --> "*" CarrierAssignment
+    ShipmentBatch "1" --> "*" Shipment

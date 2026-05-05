@@ -1,0 +1,24 @@
+flowchart LR
+    subgraph CORE[Modules.Abstractions]
+        IM[IConnectorModule]
+        IE[IEcommerceConnector<br/>BuildInstallUrl, CompleteOAuth,<br/>HandleWebhook, PushFulfillment]
+        IC[ICarrierConnector<br/>Quote, CreateLabel,<br/>Track, Cancel]
+        REG[ConnectorRegistry runtime lookup]
+    end
+    subgraph SHOP[EcommerceConnectors.Shopify]
+        SM[ShopifyConnectorModule]
+        SC[ShopifyEcommerceConnector]
+    end
+    subgraph PNL[CarrierConnectors.PostNL]
+        PM[PostNlConnectorModule]
+        PI[PostNlInMemory OK]
+        PR[PostNlReal MISSING - throws NotSupported]
+    end
+    SM -.implements.-> IM
+    SC -.implements.-> IE
+    PM -.implements.-> IM
+    PI -.implements.-> IC
+    PR -.implements.-> IC
+    SM --> REG
+    PM --> REG
+    APP[Application handlers] --> REG

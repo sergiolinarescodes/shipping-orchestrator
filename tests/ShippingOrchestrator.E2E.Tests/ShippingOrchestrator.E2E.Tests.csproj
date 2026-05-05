@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ShippingOrchestrator.E2E.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.PublicApi\ShippingOrchestrator.PublicApi.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.PrivateApi\ShippingOrchestrator.PrivateApi.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Worker\ShippingOrchestrator.Worker.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Domain\ShippingOrchestrator.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Application\ShippingOrchestrator.Application.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.Infrastructure\ShippingOrchestrator.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.ReadModels\ShippingOrchestrator.ReadModels.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.EcommerceConnectors.Shopify\ShippingOrchestrator.EcommerceConnectors.Shopify.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.EcommerceConnectors.WooCommerce\ShippingOrchestrator.EcommerceConnectors.WooCommerce.csproj" />
+    <ProjectReference Include="..\..\src\ShippingOrchestrator.CarrierConnectors.PostNL\ShippingOrchestrator.CarrierConnectors.PostNL.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Testcontainers.LocalStack" />
+    <PackageReference Include="WireMock.Net" />
+    <PackageReference Include="Bogus" />
+    <PackageReference Include="Respawn" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="AWSSDK.SQS" />
+  </ItemGroup>
+</Project>

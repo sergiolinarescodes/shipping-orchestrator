@@ -1,0 +1,27 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ShippingOrchestrator.Domain/ShippingOrchestrator.Domain.csproj" />
+    <Project Path="src/ShippingOrchestrator.Modules.Abstractions/ShippingOrchestrator.Modules.Abstractions.csproj" />
+    <Project Path="src/ShippingOrchestrator.Application/ShippingOrchestrator.Application.csproj" />
+    <Project Path="src/ShippingOrchestrator.Infrastructure/ShippingOrchestrator.Infrastructure.csproj" />
+    <Project Path="src/ShippingOrchestrator.ReadModels/ShippingOrchestrator.ReadModels.csproj" />
+    <Project Path="src/ShippingOrchestrator.CarrierConnectors.PostNL/ShippingOrchestrator.CarrierConnectors.PostNL.csproj" />
+    <Project Path="src/ShippingOrchestrator.EcommerceConnectors.Shopify/ShippingOrchestrator.EcommerceConnectors.Shopify.csproj" />
+    <Project Path="src/ShippingOrchestrator.EcommerceConnectors.WooCommerce/ShippingOrchestrator.EcommerceConnectors.WooCommerce.csproj" />
+    <Project Path="src/ShippingOrchestrator.PublicApi/ShippingOrchestrator.PublicApi.csproj" />
+    <Project Path="src/ShippingOrchestrator.PrivateApi/ShippingOrchestrator.PrivateApi.csproj" />
+    <Project Path="src/ShippingOrchestrator.Worker/ShippingOrchestrator.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ShippingOrchestrator.Domain.UnitTests/ShippingOrchestrator.Domain.UnitTests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.Application.UnitTests/ShippingOrchestrator.Application.UnitTests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.Infrastructure.IntegrationTests/ShippingOrchestrator.Infrastructure.IntegrationTests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.ReadModels.Tests/ShippingOrchestrator.ReadModels.Tests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.CarrierConnectors.PostNL.Tests/ShippingOrchestrator.CarrierConnectors.PostNL.Tests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.EcommerceConnectors.Shopify.Tests/ShippingOrchestrator.EcommerceConnectors.Shopify.Tests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.EcommerceConnectors.WooCommerce.Tests/ShippingOrchestrator.EcommerceConnectors.WooCommerce.Tests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.E2E.Tests/ShippingOrchestrator.E2E.Tests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.Architecture.Tests/ShippingOrchestrator.Architecture.Tests.csproj" />
+    <Project Path="tests/ShippingOrchestrator.PerformanceTests/ShippingOrchestrator.PerformanceTests.csproj" />
+  </Folder>
+</Solution>
